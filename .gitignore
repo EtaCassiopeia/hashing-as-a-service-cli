@@ -1,0 +1,13 @@
+### JetBrains
+.idea/
+
+### SBT
+
+target/
+project/boot/
+project/plugins/project/
+
+### Scala
+*.class
+*.log
+package-info.java
