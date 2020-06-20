@@ -8,10 +8,15 @@ object Dependencies {
     val logback = "1.2.3"
     val scalaTest = "3.0.8"
     val sttp = "2.2.0"
+    val zio = "1.0.0-RC20"
+    val zioLogging = "0.3.1"
+    val pureConfig = "0.12.3"
   }
 
   object Libraries {
     val akkaActor = "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka
+    val zio = "dev.zio" %% "zio"                              % Versions.zio
+    val pureConfig = "com.github.pureconfig" %% "pureconfig"  % Versions.pureConfig
 
     val circeModules: Seq[ModuleID] = Seq(
       "io.circe" %% "circe-core",
@@ -21,12 +26,20 @@ object Dependencies {
     ).map(_ % Versions.circe)
 
     val sttpModules = Seq(
-      "com.softwaremill.sttp.client" %% "core"              % Versions.sttp,
-      "com.softwaremill.sttp.client" %% "akka-http-backend" % Versions.sttp,
-      "com.softwaremill.sttp.client" %% "circe"             % Versions.sttp
+      "com.softwaremill.sttp.client" %% "core"                          % Versions.sttp,
+      "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % Versions.sttp,
+      "com.softwaremill.sttp.client" %% "circe"                         % Versions.sttp
     )
 
-    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
+    val zioLogging = "dev.zio" %% "zio-logging"            % Versions.zioLogging
+    val zioLoggingSlf4j = "dev.zio" %% "zio-logging-slf4j" % Versions.zioLogging
+    val logback = "ch.qos.logback"                         % "logback-classic" % Versions.logback
+
+    val loggingModules = Seq(
+      zioLogging,
+      zioLoggingSlf4j,
+      logback
+    )
 
     val scalatest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
   }

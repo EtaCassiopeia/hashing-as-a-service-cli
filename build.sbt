@@ -7,7 +7,8 @@ lazy val root = (project in file("."))
     name := "hashing-as-a-service-cli",
     libraryDependencies ++= Seq(
       Libraries.akkaActor,
-      Libraries.logback,
+      Libraries.zio,
+      Libraries.pureConfig,
       Libraries.scalatest
-    ) ++ Libraries.circeModules ++ Libraries.sttpModules
+    ) ++ Libraries.circeModules ++ Libraries.sttpModules ++ Libraries.loggingModules
   )
