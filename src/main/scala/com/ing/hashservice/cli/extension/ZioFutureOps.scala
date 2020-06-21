@@ -20,11 +20,11 @@ object ZioFutureOps {
 
   implicit class ZioOps[R, A](f: ZIO[R, Throwable, A]) {
 
-    def pipeTo[M, RI <: R](actor: ActorRef[M], createMessage: Try[A] => M)(
+    def pipeTo[M, RI <: R](actor: ActorRef[M], createResult: Try[A] => M)(
       implicit ops: ZioFutureOps[RI],
       executionContext: ExecutionContext): Unit = {
       ops.zioToFuture(f).onComplete { result =>
-        actor ! createMessage(result)
+        actor ! createResult(result)
       }
     }
   }
