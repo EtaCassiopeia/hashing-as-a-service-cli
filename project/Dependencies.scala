@@ -6,11 +6,12 @@ object Dependencies {
     val akka = "2.6.6"
     val circe = "0.13.0"
     val logback = "1.2.3"
-    val scalaTest = "3.0.8"
+    val scalaTest = "3.2.0"
     val sttp = "2.2.0"
-    val zio = "1.0.0-RC20"
+    val zio = "1.0.0-RC21"
     val zioLogging = "0.3.1"
     val pureConfig = "0.12.3"
+    val mockServer = "5.10.0"
   }
 
   object Libraries {
@@ -42,5 +43,10 @@ object Dependencies {
     )
 
     val scalatest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
+
+    lazy val mockServerModules: Seq[ModuleID] = Seq(
+      "org.mock-server" % "mockserver-client-java" % Versions.mockServer,
+      "org.mock-server" % "mockserver-netty"       % Versions.mockServer
+    ).map(_ % Test)
   }
 }

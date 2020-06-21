@@ -6,6 +6,7 @@ import sttp.client.asynchttpclient.zio.SttpClient
 import sttp.client.circe._
 import sttp.client.{basicRequest, _}
 import zio.{Has, ZIO, ZLayer}
+import scala.concurrent.duration._
 
 object HashingService {
   final case class HashRequest(id: String, lines: List[String])
@@ -22,7 +23,11 @@ object HashingService {
     private val baseUrl = s"${config.scheme}://${config.host}:${config.port}"
 
     override def send(hashRequest: HashRequest): ZIO[SttpClient, Throwable, HashResponse] = {
-      val request = basicRequest.post(uri"$baseUrl/api/service").body(hashRequest).response(asJson[HashResponse])
+      val request = basicRequest
+        .post(uri"$baseUrl/api/service")
+        .body(hashRequest)
+        .response(asJson[HashResponse])
+        .readTimeout(10.seconds)
       SttpClient
         .send(request)
         .foldM(
