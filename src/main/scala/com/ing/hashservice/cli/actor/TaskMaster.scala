@@ -10,6 +10,7 @@ import com.ing.hashservice.cli.actor.TaskMaster.Protocol._
 import com.ing.hashservice.cli.actor.TaskWorker.Protocol._
 import com.ing.hashservice.cli.extension.ZioFutureOps
 import com.ing.hashservice.cli.io.BlockReaderService.DataBlock
+import sttp.client.SttpClientException.ConnectException
 
 import scala.concurrent.ExecutionContext
 
@@ -117,17 +118,24 @@ class TaskMaster(jobId: String, outputFile: String, appMasterActorRef: ActorRef[
 
           case TaskFailed(workerActorRef, taskId, cause) =>
             context.log.info(s"Task failed: $taskId ${cause.getMessage}")
-            state.assignedTasks
-              .find(_._1 == taskId)
-              .map {
-                case (id, task) =>
-                  active(
-                    state.copy(
-                      assignedTasks = state.assignedTasks - id,
-                      pendingTasks = state.pendingTasks + (id -> task),
-                      workers = state.workers + (workerActorRef -> Idle)))
-              }
-              .getOrElse(Behaviors.same)
+            cause match {
+              //The Hashing-as-a-service service is down. Abort the job
+              case _: ConnectException =>
+                appMasterActorRef ! Failed(cause)
+                Behaviors.same
+              case _ =>
+                state.assignedTasks
+                  .find(_._1 == taskId)
+                  .map {
+                    case (id, task) =>
+                      active(
+                        state.copy(
+                          assignedTasks = state.assignedTasks - id,
+                          pendingTasks = state.pendingTasks + (id -> task),
+                          workers = state.workers + (workerActorRef -> Idle)))
+                  }
+                  .getOrElse(Behaviors.same)
+            }
 
           case NoMoreBlockExists =>
             active(state.copy(noMoreDataToRead = true))
@@ -151,11 +159,6 @@ class TaskMaster(jobId: String, outputFile: String, appMasterActorRef: ActorRef[
           case _ => Behaviors.same
         }
       }
-      .receiveSignal {
-        case (context, PostStop) =>
-          context.log.info("Task Master stopped")
-          Behaviors.same
-      }
 
   private def spawnWorkers(
     jobId: String,
@@ -165,7 +168,7 @@ class TaskMaster(jobId: String, outputFile: String, appMasterActorRef: ActorRef[
 }
 
 object TaskMaster {
-  private val defaultTaskWorkers = 10
+  private val defaultTaskWorkers = 5
 
   def apply(jobId: String, outputFile: String, appMasterActorRef: ActorRef[AppMasterCommand])(
     implicit zioOps: ZioFutureOps[AppMaster.AppEnvironment]): Behavior[TaskMasterCommand] =

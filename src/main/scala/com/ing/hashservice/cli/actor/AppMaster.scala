@@ -16,7 +16,9 @@ class AppMaster(jobId: String, outputFile: String)(implicit zioOps: ZioFutureOps
   def start(): Behavior[AppMasterCommand] = Behaviors.setup[AppMasterCommand] { context =>
     context.spawn(TaskMaster(jobId, outputFile, context.self), "taskmaster")
     Behaviors.receiveMessage[AppMasterCommand] {
-      case Completed => Behaviors.stopped
+      case Completed =>
+        context.log.error(s"Successfully completed: $outputFile")
+        Behaviors.stopped
       case Failed(cause) =>
         context.log.error(s"Failed ${cause.getMessage}")
         Behaviors.stopped
