@@ -53,7 +53,7 @@ One of the most used patterns in Akka is the Pipe pattern which is to send the r
 The application is able to read the input file chunk-by-chunk. It's not possible to read fixed-size blocks and assign them to the workers, it might have some broken lines at the end of each block and the start position of each block depends on the end position of the previous one. Therefore, we need a way to process the read block requests one-by-one.
 `IOHandler` is designed in such a way to read one block at a time. If it receives more than one request to read a block it stashed all of the other request and replay them later.
 
-`IOHandler` is also responsible for merging the processed blocks.
+`IOHandler` is also responsible for merging the processed blocks. The start offset of each block is used as the taskId. This helps `IOHandler` to read the intermediate temp files with the correct order.
 
 ### TaskMaster
 
@@ -61,6 +61,6 @@ The application is able to read the input file chunk-by-chunk. It's not possible
 
 ### TaskWorker
 
-Data blocks read by `IOHandler` are passed to the `TaskWorker`s. `TaskMaster` hashes the lines by making HTTP calls to the Hashing-as-a-service API. After receiving the results it stores them in a temp file.
+Data blocks read by `IOHandler` are passed to the `TaskWorker`s as a new task. `TaskMaster` hashes the lines by making HTTP calls to the Hashing-as-a-service API. After receiving the results it stores them in a temp file (`/tmp-folder/jobId/taskId.tmp`).
 In case of any failure, `TaskWorker` reports them to `TaskMaster`.
  
