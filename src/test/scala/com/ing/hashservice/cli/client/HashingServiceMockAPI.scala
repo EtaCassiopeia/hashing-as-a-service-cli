@@ -17,6 +17,13 @@ class HashingServiceMockAPI private (mockServerPort: Int) {
       .respond(successfulResponse(expectedResponse))
   }
 
+  def successfulCallWithoutBody(expectedResponse: HashResponse): Unit = {
+    mockServer
+      .reset()
+      .when(anyRequest())
+      .respond(successfulResponse(expectedResponse))
+  }
+
   def failedCall(request: HashRequest): Unit = {
     mockServer
       .reset()
@@ -32,6 +39,13 @@ class HashingServiceMockAPI private (mockServerPort: Int) {
   }
 
   def close(): Unit = mockServer.close()
+
+  private def anyRequest(): HttpRequest =
+    HttpRequest
+      .request()
+      .withContentType(APPLICATION_JSON_UTF_8)
+      .withMethod("POST")
+      .withPath(s"/api/service")
 
   private def getRequest(request: HashRequest): HttpRequest =
     HttpRequest

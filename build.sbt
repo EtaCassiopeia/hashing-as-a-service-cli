@@ -10,5 +10,8 @@ lazy val root = (project in file("."))
       Libraries.zio,
       Libraries.pureConfig,
       Libraries.scalatest
-    ) ++ Libraries.circeModules ++ Libraries.sttpModules ++ Libraries.loggingModules ++ Libraries.mockServerModules
+    ) ++ Libraries.circeModules
+      ++ Libraries.sttpModules
+      ++ Libraries.loggingModules
+      ++ Libraries.mockServerModules
   )
