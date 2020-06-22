@@ -13,5 +13,7 @@ lazy val root = (project in file("."))
     ) ++ Libraries.circeModules
       ++ Libraries.sttpModules
       ++ Libraries.loggingModules
-      ++ Libraries.mockServerModules
-  )
+      ++ Libraries.mockServerModules,
+    mainClass in Compile := Some("com.ing.hashservice.cli.Main"),
+    mainClass in (Compile, packageBin) := Some("com.ing.hashservice.cli.Main"),
+  )  .enablePlugins(JavaAppPackaging)
